@@ -3,48 +3,82 @@
 
 import sys
 import csv
+import time
 
-#http://www.tweepy.org/
+import json
 import tweepy
+import schedule
 
-#Get your Twitter API credentials and enter them here
-consumer_key = "your_consumer_key"
-consumer_secret = "your_consumer_secret"
-access_key = "your_access_key"
-access_secret = "your_access_secret"
+consumer_key = "XXXXX"
+consumer_secret = "XXXXX"
+access_key = "XXXXX"
+access_secret = "XXXXX"
 
-#method to get a user's last 100 tweets
 def get_tweets(username):
-
-	#http://tweepy.readthedocs.org/en/v3.1.0/getting_started.html#api
+	
+	with open(keys.json) as json_file:
+		json_data = json.load(json_file)
+	
+	for item in json_data["keys"]:
+		if item["username"] == username:
+			consumer_key = item["consumer_key"]
+			consumer_secret = item["consumer_secret"]
+			access_key = item["access_key"]
+			access_secret = item["access_secret"]
+	
 	auth = tweepy.OAuthHandler(consumer_key, consumer_secret)
 	auth.set_access_token(access_key, access_secret)
 	api = tweepy.API(auth)
 
-	#set count to however many tweets you want; twitter only allows 200 at once
-	number_of_tweets = 100
+	number_of_tweets = 10
 
-	#get tweets
 	tweets = api.user_timeline(screen_name = username,count = number_of_tweets)
-
-	#create array of tweet information: username, tweet id, date/time, text
-	tweets_for_csv = [[username,tweet.id_str, tweet.created_at, tweet.text.encode("utf-8")] for tweet in tweets]
-
-	#write to a new csv file from the array of tweets
-	print "writing to {0}_tweets.csv".format(username)
-	with open("{0}_tweets.csv".format(username) , 'w+') as file:
-		writer = csv.writer(file, delimiter='|')
-		writer.writerows(tweets_for_csv)
-
-
-#if we're running this as a script
+	
+	data = {}
+	data['tweets'] = []
+	
+	for tweet in tweets:
+		data['tweets'].append({
+		'username': username,
+		'id': tweet.id_str,
+		'text': tweet.text.encode('utf-16', 'surrogatepass').decode('utf-16')
+		})
+		
+	print ("writing to {0}_tweets.json".format(username))
+	with open("{0}_tweets.json".format(username), 'w') as outfile:
+		json.dump(data, outfile, sort_keys=True, indent=4)
+		
+def post_fb(username):
+	with open(keys.json) as json_file:
+		json_data = json.load(json_file)
+	
+	for item in json_data["keys"]:
+		if item["username"] == username:
+			ACCESS_TOKEN = item["access_token"]
+			
+	graph = facebook.GraphAPI(ACCESS_TOKEN)
+	
+	with open('{0}_tweets.json'.format(username)) as json_file:
+		json_data = json.load(json_file)
+	
+	for item in json_data["tweets"]:
+		with open('{0}_posted.txt'.format(username)) as postedfiles:
+			if item["id"] not in postedfiles.read():
+				if "t.co" not in item["text"]:
+					graph.put_object("me", "feed", message=item["text"])				
+			else:
+				postedfiles.write(item["id"] + "\n")
+					
 if __name__ == '__main__':
 
-    #get tweets for username passed at command line
     if len(sys.argv) == 2:
-        get_tweets(sys.argv[1])
+        schedule.every(30).minutes.do(get_tweets(sys.argv[1]))
+		schedule.every().hour.do(post_fb(sys.argv[1])
+		while True:
+		schedule.run_pending()
+		time.sleep(1)
     else:
-        print "Error: enter one username"
+        print ("Error: enter one username")
 
     #alternative method: loop through multiple users
 	# users = ['user1','user2']
