@@ -51,4 +51,18 @@ Then you can run the script by entering one username at the command line:
 $ python
 >>> get_tweets("[twitter_username]")
 ```
+## To-Do
+
+##### Short Term
+
+* Controllable Scheduling
+
+* Fix Bugs
+
+##### Long Term
+
+* Implement in to a webapp with [Wooey](https://github.com/wooey/Wooey)
+
+* Add support for writing and reading from databases
+
 
