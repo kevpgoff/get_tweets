@@ -15,6 +15,7 @@ import schedule
 import argparse
 import facebook
 import magic
+from colorama import Fore
 
 consumer_key = "XXXXX"
 consumer_secret = "XXXXX"
