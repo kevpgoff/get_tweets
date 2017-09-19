@@ -27,7 +27,10 @@ parser.add_argument('--num', help='The number of tweets that will be scraped at 
 parser.add_argument('--fb-mins', help='Number of minutes between posting loaded tweets to Facebook', type=int, default=60, required = True)
 parser.add_argument('--twitter-mins', help='Number of minutes between tweet scrapes', type=int, default=60, required = True)
 
-
+def print_error(err):
+	print >>sys.stderr, Fore.RED + sys.argv[0] + ' error: ' + err + Fore.RESET
+	sys.stderr.flush()
+	
 def get_tweets(username):
 	
 	with open('keys.json') as json_file:
