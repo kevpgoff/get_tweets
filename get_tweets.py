@@ -31,7 +31,7 @@ parser.add_argument('--twitter-mins', help='Number of minutes between tweet scra
 def print_error(err):
 	print >>sys.stderr, Fore.RED + sys.argv[0] + ' error: ' + err + Fore.RESET
 	sys.stderr.flush()
-	
+
 def get_tweets(username):
 	
 	with open('keys.json') as json_file:
