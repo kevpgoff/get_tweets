@@ -55,14 +55,18 @@ $ python
 
 ##### Short Term
 
-* Controllable Scheduling
+* ~Controllable Scheduling~
+
+* ~Image Support~
+
+* GIF Support
 
 * Fix Bugs
 
 ##### Long Term
 
-* Implement in to a webapp with [Wooey](https://github.com/wooey/Wooey)
+* Implement in to Django app
 
-* Add support for writing and reading from databases
+* Migrate to Sqlite database
 
 
