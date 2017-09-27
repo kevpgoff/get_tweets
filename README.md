@@ -25,7 +25,8 @@ Add your keys for the users you wish to use the script on to a file called `keys
             "access_key": "XXXXX",
 	    "access_secret": "XXXXX",
 	    "username": "XXXXX",
-	    "access_token": "XXXXX"			
+	    "access_token": "XXXXX",
+	    "page_id": "XXXXX"
         }
     ]
 }
