@@ -52,15 +52,28 @@ def get_tweets(username):
 		hasvid = False
 		hasmedia = False
 		filetype = ""
+		filepath = "./images/"
 
 		if("None" in str(tweet.media)):
 			hasmedia = False
 		else:
 			hasmedia = True
+
+		if("animated_gif" in str(tweet.media)):
+			hasvid = True
 		
 		if(hasmedia == True and len(tweet.media) > 1):
+			filetype = ".jpg"
 			for i in range(0, len(tweet.media)):
-				image_url += tweet.media[i].media_url_https + ", "
+				image_url = tweet.media[i].media_url_https
+				urllib.request.urlretrieve(image_url, ((filepath) + str(tweet.id) + "-" + str(imagecount) + filetype))
+				imagecount += 1
+
+
+		if(hasvid == True):
+			filetype = ".mp4"
+			image_url = tweet.media[0].video_info['variants'][0]['url']
+			urllib.request.urlretrieve(image_url, (filepath) + str(tweet.id) + filetype)
 
 		if(hasmedia == True and tweet.media[0].type == 'photo' and len(tweet.media) == 1):
 			hasimg = True
@@ -69,16 +82,12 @@ def get_tweets(username):
 			else:
 				filetype = ".jpg"
 				image_url = tweet.media[0].media_url_https
-				imagecount += 1
-		elif():
-			hasvid = True
-			filetype = ".mp4"
-			image_url = tweet.media[0].media_url_https
+			urllib.request.urlretrieve(image_url, (filepath) + str(tweet.id) + filetype)
 
 		data['tweets'].append({
 		'username': username,
-		'id': tweet.id_str,
-		'text': tweet.full_text,
+		'id': tweet.id,
+		'text': tweet.text,
 		'media' : [{
 			'hasimg' : str(hasimg),
 			'hasgif' : str(hasvid),
@@ -87,33 +96,7 @@ def get_tweets(username):
 			'albumnum' : imagecount
 		}]
 		})
-
-	for status in tweets:
-		if 'media' in status.entities:
-			count = 0;
-			for media in status.entities['media']:
-				count += 1
-				if media['type'] == 'photo':
-					image_uri = media['media_url'] + ':large'
-					filename = username + '-' + status.id_str
-					filepath = './images/' + filename
-					# download image
-					urllib.request.urlretrieve(image_uri, filepath)
-					# identify mime type and attach extension
-					if os.path.exists(filepath):
-						mime = magic.from_file(filepath, mime=True)
-						if mime == "image/gif":
-							newfilepath = filepath + ".gif"
-						elif mime == "image/jpeg":
-							newfilepath = filepath + ".jpg"
-						elif mime == "image/png":
-							newfilepath = filepath + ".png"
-						else:
-							err = filepath + ": unrecgonized image type"
-							print_error(err)
-							continue
-						os.rename(filepath, newfilepath)
-		
+	
 	print ("writing to {0}_tweets.json".format(username))
 	with open("{0}_tweets.json".format(username), 'w') as outfile:
 		json.dump(data, outfile, sort_keys=True, indent=4)
