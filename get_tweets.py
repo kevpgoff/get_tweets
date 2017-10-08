@@ -8,19 +8,31 @@ import mmap
 import os
 import subprocess
 import urllib.request
-import glob
 
 import json
 import twitter
 import schedule
 import facebook
-import magic
 
 from pymongo import MongoClient
 
 from colorama import Fore
 
 client = MongoClient()
+
+def put_video(video_url, page_id, access_token, descriptioninput, titleinput):
+	video_file_name=title
+	local_video_file = {'file': open(video_url, 'rb')}
+ 	path = "{0}/videos".format(page_id)
+	fb_url = "https://graph-video.facebook.com/{0}?access_token={1}".format(
+			path, access_token)
+	r = requests.post(fb_url, files=local_video_file, title = titleinput, description = descriptioninput) 
+	if r.status_code == 200:
+		j_res = r.json()
+		facebook_video_id = j_res.get('id')
+		print ("facebook_video_id = {0}".format(facebook_video_id))
+	else:
+		print ("Facebook upload error: {0}".format(r.text))
 
 def print_error(err):
 	print >>sys.stderr, Fore.RED + sys.argv[0] + ' error: ' + err + Fore.RESET
@@ -37,7 +49,7 @@ def get_tweets(username):
 
 	number_of_tweets = 4
 
-	tweets = api.GetUserTimeline(screen_name = username,count = number_of_tweets)
+	tweets = api.GetUserTimeline(screen_name = username,count = number_of_tweets, exclude_replies = "true")
 	
 	
 	json_file.close()
@@ -64,16 +76,16 @@ def get_tweets(username):
 		
 		if(hasmedia == True and len(tweet.media) > 1):
 			filetype = ".jpg"
+			hasimg = True
 			for i in range(0, len(tweet.media)):
 				image_url = tweet.media[i].media_url_https
-				urllib.request.urlretrieve(image_url, ((filepath) + str(tweet.id) + "-" + str(imagecount) + filetype))
+				urllib.request.urlretrieve(image_url, ((filepath) + username + str(tweet.id) + "-" + str(imagecount) + filetype))
 				imagecount += 1
-
 
 		if(hasvid == True):
 			filetype = ".mp4"
 			image_url = tweet.media[0].video_info['variants'][0]['url']
-			urllib.request.urlretrieve(image_url, (filepath) + str(tweet.id) + filetype)
+			urllib.request.urlretrieve(image_url, (filepath) + username + str(tweet.id) + filetype)
 
 		if(hasmedia == True and tweet.media[0].type == 'photo' and len(tweet.media) == 1):
 			hasimg = True
@@ -82,7 +94,7 @@ def get_tweets(username):
 			else:
 				filetype = ".jpg"
 				image_url = tweet.media[0].media_url_https
-			urllib.request.urlretrieve(image_url, (filepath) + str(tweet.id) + filetype)
+			urllib.request.urlretrieve(image_url, (filepath) + username + str(tweet.id) + filetype)
 
 		data['tweets'].append({
 		'username': username,
@@ -136,17 +148,24 @@ def post_fb(username):
 					hasimg = True
 					if ".gif" in file:
 						hasgif = True
-					albumcounter +=1
+					albumcounter += 1
 
 			if checker == False:
 				postedfiles.write(item["id"] + "\n")
 				
 			postedfiles.close()
-		if hasimg == True and checker == False and hasgif == False and "@" not in item["text"] and "instagram" not in item["text"]:
+
+		if item["media"][0]["albumnum"] > 0 and hasimg == True and checker == False and hasgif == False and "@" not in item["text"] and "instagram" not in item["text"]:
+			for i in range(0, item["media"][0]["albumnum"]):
+				graph.put_photo(open("./images/" + username + "-" + item["id"] + "-" + i + item["media"][0]["filetype"]))
+
+		if item["media"][0]["albumnum"] == 0 and hasimg == True and checker == False and hasgif == False and "@" not in item["text"] and "instagram" not in item["text"]:
 			graph.put_photo(open('/home/kevin/Desktop/get_tweets/test/images/' + username + '-' + item['id'] + '.jpg', 'rb'), message = item["text"][0:item["text"].find("https://t.co")])
-			print("IMAGE POSTED: " + username + "-" + item["id"] + '.jpg')
+			print("IMAGE POSTED: " + username + "-" + item["id"] + ".jpg")
+
 		elif hasimg == True and checker == False and hasgif == True and "@" not in item["text"] and "instagram" not in item["text"]:
-			graph.put_wall_post(item["text"])
+			put_video("./images/" + username + "-" + item["id"] + ".mp4", pg_id, ACCESS_TOKEN, "test description", "test title", album_path = "me/albums/" + item["id"])
+
 		elif hasimg == False and checker == False and "t.co" not in item["text"] and "@" not in item["text"] and "instagram" not in item["text"]:
 			graph.put_wall_post(item["text"])	
 		
