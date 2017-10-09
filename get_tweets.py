@@ -19,6 +19,8 @@ from pymongo import MongoClient
 from colorama import Fore
 
 client = MongoClient()
+db = client.tweet_store
+posts = db.posts
 
 def put_video(video_url, page_id, access_token, descriptioninput, titleinput):
 	video_file_name=title
@@ -108,7 +110,9 @@ def get_tweets(username):
 			'albumnum' : imagecount
 		}]
 		})
-	
+
+		result = posts.insert_one(data)
+		
 	print ("writing to {0}_tweets.json".format(username))
 	with open("{0}_tweets.json".format(username), 'w') as outfile:
 		json.dump(data, outfile, sort_keys=True, indent=4)
