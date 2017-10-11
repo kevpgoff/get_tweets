@@ -25,7 +25,7 @@ posts = db.posts
 def put_video(video_url, page_id, access_token, descriptioninput, titleinput):
 	video_file_name=title
 	local_video_file = {'file': open(video_url, 'rb')}
- 	path = "{0}/videos".format(page_id)
+	path = "{0}/videos".format(page_id)
 	fb_url = "https://graph-video.facebook.com/{0}?access_token={1}".format(
 			path, access_token)
 	r = requests.post(fb_url, files=local_video_file, title = titleinput, description = descriptioninput) 
@@ -49,7 +49,7 @@ def get_tweets(username):
 		if item["username"] == username:
 			api = twitter.Api(consumer_key = item["consumer_key"], consumer_secret = item["consumer_secret"], access_token_key = item["access_key"], access_token_secret = item["access_secret"])
 
-	number_of_tweets = 4
+	number_of_tweets = 3
 
 	tweets = api.GetUserTimeline(screen_name = username,count = number_of_tweets, exclude_replies = "true")
 	
@@ -100,7 +100,7 @@ def get_tweets(username):
 
 		data['tweets'].append({
 		'username': username,
-		'id': tweet.id,
+		'id': tweet.id_str,
 		'text': tweet.text,
 		'media' : [{
 			'hasimg' : str(hasimg),
@@ -111,7 +111,7 @@ def get_tweets(username):
 		}]
 		})
 
-		result = posts.insert_one(data)
+		#result = posts.insert_one(data)
 		
 	print ("writing to {0}_tweets.json".format(username))
 	with open("{0}_tweets.json".format(username), 'w') as outfile:
@@ -179,11 +179,11 @@ def main():
 	#IF RUNNING FROM CMD
 	
 	if len(sys.argv) == 2:
-	#	schedule.every(5).minutes.do(get_tweets, sys.argv[1])
-	#	schedule.every(10).minutes.do(post_fb, sys.argv[1])
-	#	while True:
-	#		schedule.run_pending()
-	#		time.sleep(1)	
+		schedule.every(5).minutes.do(get_tweets, sys.argv[1])
+		schedule.every(10).minutes.do(post_fb, sys.argv[1])
+		while True:
+			schedule.run_pending()
+			time.sleep(1)	
 			
 		#above for scheduling, below for single run		
 		
@@ -191,7 +191,7 @@ def main():
     #    print ("Error: enter one username")
 	
 	#FOR MANUAL SINGLE RUN
-		get_tweets(sys.argv[1])
+		#get_tweets(sys.argv[1])
 		#post_fb(sys.argv[1])
 	
 	else:
