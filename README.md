@@ -41,6 +41,7 @@ Add your keys for the users you wish to use the script on to a file called `keys
 
 `username` Twitter Handle
 
+`page_id` Facebook page ID to post to pages
 
 `access_token` Facebook Access Token
 
@@ -58,16 +59,14 @@ $ python
 
 * ~Controllable Scheduling~
 
-* ~Image Support~
+* ~Image/Album Support~
 
-* GIF Support
+* ~GIF Support~
 
 * Fix Bugs
 
 ##### Long Term
 
-* Implement in to Django app
-
-* Migrate to Sqlite database
+* Migrate to MongoDB (50%)
 
 
