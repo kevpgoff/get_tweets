@@ -143,35 +143,31 @@ def post_fb(username):
 		json_data = json.load(json_file)
 
 	for item in json_data["tweets"]:
+		checker = False
 		with open('{0}_posted.txt'.format(username), 'r+') as postedfiles:
 			for line in postedfiles:
 				if item["id"] in line:
 					checker = True
-			for file in glob.glob('./images/*'):
-				if item["id"] in file:
-					hasimg = True
-					if ".gif" in file:
-						hasgif = True
-					albumcounter += 1
-
 			if checker == False:
 				postedfiles.write(item["id"] + "\n")
 				
 			postedfiles.close()
 
-		if item["media"][0]["albumnum"] > 0 and hasimg == True and checker == False and hasgif == False and "@" not in item["text"] and "instagram" not in item["text"]:
+		if item["media"][0]["hasimg"] == "False" and checker == False and "t.co" not in item["text"] and "@" not in item["text"] and "instagram" not in item["text"]:
+			graph.put_wall_post(item["text"])		
+
+		if item["media"][0]["albumnum"] > 0 and item["media"][0]["hasimg"] == "True" and checker == False and item["media"][0]["hasgif"] == "False" and "@" not in item["text"] and "instagram" not in item["text"]:
 			for i in range(0, item["media"][0]["albumnum"]):
 				graph.put_photo(open("./images/" + username + "-" + item["id"] + "-" + i + item["media"][0]["filetype"]))
 
-		if item["media"][0]["albumnum"] == 0 and hasimg == True and checker == False and hasgif == False and "@" not in item["text"] and "instagram" not in item["text"]:
+		if item["media"][0]["albumnum"] == 0 and item["media"][0]["hasimg"] == "True" and checker == False and item["media"][0]["hasgif"] == "False" and "@" not in item["text"] and "instagram" not in item["text"]:
 			graph.put_photo(open('/home/kevin/Desktop/get_tweets/test/images/' + username + '-' + item['id'] + '.jpg', 'rb'), message = item["text"][0:item["text"].find("https://t.co")])
 			print("IMAGE POSTED: " + username + "-" + item["id"] + ".jpg")
 
-		elif hasimg == True and checker == False and hasgif == True and "@" not in item["text"] and "instagram" not in item["text"]:
+		elif item["media"][0]["hasimg"] == "True" and checker == False and item["media"][0]["hasgif"] == "True" and "@" not in item["text"] and "instagram" not in item["text"]:
 			put_video("./images/" + username + "-" + item["id"] + ".mp4", pg_id, ACCESS_TOKEN, "test description", "test title", album_path = "me/albums/" + item["id"])
 
-		elif hasimg == False and checker == False and "t.co" not in item["text"] and "@" not in item["text"] and "instagram" not in item["text"]:
-			graph.put_wall_post(item["text"])	
+
 		
 					
 def main():
