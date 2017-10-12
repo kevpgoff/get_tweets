@@ -158,14 +158,14 @@ def post_fb(username):
 
 		if item["media"][0]["albumnum"] > 0 and item["media"][0]["hasimg"] == "True" and checker == False and item["media"][0]["hasgif"] == "False" and "@" not in item["text"] and "instagram" not in item["text"]:
 			for i in range(0, item["media"][0]["albumnum"]):
-				graph.put_photo(open("./images/" + username + "-" + item["id"] + "-" + i + item["media"][0]["filetype"]))
+				graph.put_photo(open("./images/" + username + "-" + item["id"] + "-" + i + item["media"][0]["filetype"]), album_path = "me/albums/" + item["id"])
 
 		if item["media"][0]["albumnum"] == 0 and item["media"][0]["hasimg"] == "True" and checker == False and item["media"][0]["hasgif"] == "False" and "@" not in item["text"] and "instagram" not in item["text"]:
-			graph.put_photo(open('/home/kevin/Desktop/get_tweets/test/images/' + username + '-' + item['id'] + '.jpg', 'rb'), message = item["text"][0:item["text"].find("https://t.co")])
+			graph.put_photo(open('./images/' + username + '-' + item['id'] + '.jpg', 'rb'), message = item["text"][0:item["text"].find("https://t.co")])
 			print("IMAGE POSTED: " + username + "-" + item["id"] + ".jpg")
 
 		elif item["media"][0]["hasimg"] == "True" and checker == False and item["media"][0]["hasgif"] == "True" and "@" not in item["text"] and "instagram" not in item["text"]:
-			put_video("./images/" + username + "-" + item["id"] + ".mp4", pg_id, ACCESS_TOKEN, "test description", "test title", album_path = "me/albums/" + item["id"])
+			put_video("./images/" + username + "-" + item["id"] + ".mp4", pg_id, ACCESS_TOKEN, "", item["id"])
 
 
 		
