@@ -87,7 +87,7 @@ def get_tweets(username):
 		if(hasvid == True):
 			filetype = ".mp4"
 			image_url = tweet.media[0].video_info['variants'][0]['url']
-			urllib.request.urlretrieve(image_url, (filepath) + username + str(tweet.id) + filetype)
+			urllib.request.urlretrieve(image_url, (filepath) + username + "-" + str(tweet.id) + filetype)
 
 		if(hasmedia == True and tweet.media[0].type == 'photo' and len(tweet.media) == 1):
 			hasimg = True
@@ -96,7 +96,7 @@ def get_tweets(username):
 			else:
 				filetype = ".jpg"
 				image_url = tweet.media[0].media_url_https
-			urllib.request.urlretrieve(image_url, (filepath) + username + str(tweet.id) + filetype)
+			urllib.request.urlretrieve(image_url, (filepath) + username + "-" + str(tweet.id) + filetype)
 
 		data['tweets'].append({
 		'username': username,
